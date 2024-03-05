@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "237873728948",
+    "firebase_url": "https://cat-or-bread-application-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "cat-or-bread-application",
+    "storage_bucket": "cat-or-bread-application.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:237873728948:android:3562f267fcf3aae18036e1",
+        "android_client_info": {
+          "package_name": "com.example.catorbread"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwxexgnIBHMQhI5T0dMf8wxUqFdWMfCe0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
