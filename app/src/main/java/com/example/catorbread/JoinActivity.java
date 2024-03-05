@@ -29,15 +29,15 @@ public class JoinActivity extends AppCompatActivity {
     }
 
     public void joinGame (View view) {
-        code=eTCode.getText().toString();
+        code = eTCode.getText().toString();
 
         if (code.isEmpty()) {
-            Toast.makeText(ctx, "Please enter a game code", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx , "Please enter a game code" , Toast.LENGTH_SHORT).show();
             return;
         }
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Game/"+code);
+        DatabaseReference myRef = database.getReference("Game/" + code);
 
         // Read from the database
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
