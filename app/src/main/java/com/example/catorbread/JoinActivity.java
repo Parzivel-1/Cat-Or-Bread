@@ -18,14 +18,13 @@ import com.google.firebase.database.ValueEventListener;
 
 public class JoinActivity extends AppCompatActivity {
     EditText eTCode;
-    Context ctx;
+    Context ctx = this;
     String code;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join);
-        ctx = this;
         eTCode = findViewById(R.id.eTCode);
     }
 
