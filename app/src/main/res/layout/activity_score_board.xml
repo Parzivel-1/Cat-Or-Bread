@@ -10,23 +10,21 @@
         android:id="@+id/P1Name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        />
+        android:text="TextView" />
 
     <TextView
         android:id="@+id/P1Score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
-        android:layout_below="@id/P1Name"
-        />
+        android:layout_below="@id/P1Name" />
 
     <TextView
         android:id="@+id/P2Name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
-        android:layout_alignParentRight="true"/>
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:id="@+id/P2Score"
@@ -34,14 +32,14 @@
         android:layout_height="wrap_content"
         android:text="TextView"
         android:layout_below="@id/P2Name"
-        android:layout_alignParentRight="true"/>
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:id="@+id/code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:id="@+id/button"
@@ -49,5 +47,6 @@
         android:layout_height="wrap_content"
         android:text="Button"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"/>
+        android:layout_alignParentBottom="true" />
+
 </RelativeLayout>
