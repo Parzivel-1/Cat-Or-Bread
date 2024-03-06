@@ -9,9 +9,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.example.catorbread" />
-                  <option name="mobileSdkAppId" value="1:300086564362:android:73b50ce61d41848f8ab1f3" />
-                  <option name="projectId" value="cat-or-bread" />
-                  <option name="projectNumber" value="300086564362" />
+                  <option name="mobileSdkAppId" value="1:237873728948:android:3562f267fcf3aae18036e1" />
+                  <option name="projectId" value="cat-or-bread-application" />
+                  <option name="projectNumber" value="237873728948" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

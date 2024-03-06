@@ -13,46 +13,45 @@ public class Board {
 
     public Board() {}
 
-    public void setCells(ArrayList<String> cells) {
+    public void setCells (ArrayList<String> cells) {
         this.cells = cells;
     }
 
-    public int getCat() {
+    public int getCat () {
         return cat;
     }
 
-    public void setCat(int cat) {
+    public void setCat (int cat) {
         this.cat = cat;
     }
 
-    public int getBread() {
+    public int getBread () {
         return bread;
     }
 
-    public void setBread(int bread) {
+    public void setBread (int bread) {
         this.bread = bread;
     }
 
-    public int getSize() {
+    public int getSize () {
         return size;
     }
 
-    public void setSize(int size) {
+    public void setSize (int size) {
         this.size = size;
     }
 
 
-    public ArrayList <String> getCells() {
+    public ArrayList <String> getCells () {
         return cells;
     }
 
-    public void init() {
+    public void init () {
         cells = new ArrayList <String> ();
         cat = 4;
         bread = 4;
         size = 9;
         cells.clear();
-
 
         for (int i = 0 ; i < size-1 ; i++) {
             if (cat > 0) {
@@ -72,17 +71,18 @@ public class Board {
         }
         Collections.shuffle(cells);
     }
-    public void scan (){
-        int bread=0,cat=0;
-        for (int i = 0; i < cells.size(); i++) {
-            if(cells.get(i).equals("c")){
+
+    public void scan () {
+        int bread = 0 , cat = 0;
+        for (int i = 0 ; i < cells.size() ; i++) {
+            if (cells.get(i).equals("c")) {
                 cat++;
             }
-            if(cells.get(i).equals("b")){
+            if (cells.get(i).equals("b")) {
                 bread++;
             }
         }
-        if(cat==0||bread==0){
+        if (cat == 0 || bread == 0) {
             init();
         }
 
