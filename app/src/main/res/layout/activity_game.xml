@@ -7,11 +7,19 @@
     tools:context=".GameActivity">
 
     <TextView
+        android:id="@+id/timeremain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Time Remaining:"
+        android:layout_below="@id/btnCreateGame"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
         android:id="@+id/timeTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""
-        android:layout_below="@id/btnCreateGame"
+        android:layout_below="@id/timeremain"
         android:layout_centerHorizontal="true"/>
 
     <Button
@@ -20,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:onClick="btnClick"
-        android:text="Create Game"
+        android:text="Create Room"
         tools:layout_editor_absoluteX="80dp"
         tools:layout_editor_absoluteY="259dp" />
 

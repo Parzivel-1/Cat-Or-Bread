@@ -1,5 +1,6 @@
 package com.example.catorbread;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -16,15 +17,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import javax.annotation.Nonnull;
+
 public class LogInActivity extends AppCompatActivity {
     EditText eTUsername , eTPassword;
     Context ctx = this;
+    boolean flag;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
-        // ctx = this;
         eTPassword = findViewById(R.id.password);
         eTUsername = findViewById(R.id.username);
     }
@@ -36,27 +39,34 @@ public class LogInActivity extends AppCompatActivity {
             Toast.makeText(this , "Please fill all the fields." , Toast.LENGTH_SHORT).show();
             return;
         }
-        // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Users/" + username);
-        // Read from the database
+        flag = false;
         myRef.addValueEventListener(new ValueEventListener () {
             @Override
-            public void onDataChange (DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
+            public void onDataChange (@Nonnull DataSnapshot dataSnapshot) {
+                if (flag) {
+                    return;
+                }
                 User value = dataSnapshot.getValue(User.class);
+                if (value.getConnected()) {
+                    Toast.makeText(ctx , "User already logged in!" , Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (value != null && value.getPassword().equals(password)) {
+                    flag = true;
                     User.setCurrent(value.getUsername());
+                    myRef.getRef().child("connected").setValue(true);
                     Intent intent = new Intent(ctx , MenuActivity.class);
                     startActivity(intent);
+                    finish();
                 } else {
-                    Toast.makeText(ctx , "Wrong!" , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ctx , "Wrong username or password!" , Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onCancelled (DatabaseError error) {
+            public void onCancelled (@Nonnull DatabaseError error) {
                 Log.w("TAG" , "Failed to read value." , error.toException());
             }
         });
@@ -65,5 +75,6 @@ public class LogInActivity extends AppCompatActivity {
     public void clickBack (View view) {
         Intent intent = new Intent(this , MainActivity.class);
         startActivity(intent);
+        finish();
     }
 }

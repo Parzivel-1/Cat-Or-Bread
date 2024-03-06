@@ -42,12 +42,9 @@ public class JoinActivity extends AppCompatActivity {
         // Read from the database
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-
+            public void onDataChange (DataSnapshot dataSnapshot) {
                 Game value = dataSnapshot.getValue(Game.class);
-                if (value==null || value.getPlayer2() != null){
+                if (value == null || value.getPlayer2() != null){
                     Toast.makeText(JoinActivity.this , "Game not found", Toast.LENGTH_SHORT).show();
                     return;
                 }

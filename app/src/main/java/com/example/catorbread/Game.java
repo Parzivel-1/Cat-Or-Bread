@@ -1,8 +1,8 @@
 package com.example.catorbread;
 
 public class Game {
-    private String player1;//bread
-    private String player2;//cat
+    private String player1; //bread
+    private String player2; //cat
     private String code;
     private Board board;
     private int time;

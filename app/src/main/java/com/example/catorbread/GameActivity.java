@@ -42,19 +42,20 @@ public class GameActivity extends AppCompatActivity {
         tVP1 = findViewById(R.id.tVP1);
         time = findViewById(R.id.timeTV);
         tVP1.setText(User.getCurrent());
+        String code = getIntent().getStringExtra("code");
+        if (code != null) {
+            guest = true;
+            waiting(code);
+        }
         initBoard();
-        guest();
     }
+
     public void updateGameProcess () {
-        // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Game/" + game.getCode());
-        // Read from the database
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addValueEventListener(new ValueEventListener () {
             @Override
             public void onDataChange (DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
                 if (game.getTime() == 0) {
                     endGame();
                 }
@@ -78,6 +79,7 @@ public class GameActivity extends AppCompatActivity {
             }
         });
     }
+
     public void endGame () {
         Intent intent = new Intent(this , ScoreBoardActivity.class);
         intent.putExtra("player1" , game.getPlayer1());
@@ -87,6 +89,7 @@ public class GameActivity extends AppCompatActivity {
         intent.putExtra("code" , game.getCode());
         startActivity(intent);
     }
+
     public void timer () {
         if (game.getPlayer2().equals(User.getCurrent())) {
             return;
@@ -100,17 +103,18 @@ public class GameActivity extends AppCompatActivity {
                 updateGame();
             }
 
-            public void onFinish() {
+            public void onFinish () {
                 game.setTime(0);
                 updateGame();
                 endGame();
             }
         }.start();
     }
+
     public void updateGame () {
         game.getBoard().scan();
         showBoard();
-        // Write a message to the database
+
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Game/" + game.getCode());
         myRef.setValue(game);
@@ -140,8 +144,37 @@ public class GameActivity extends AppCompatActivity {
                 counter++;
             }
         }
+
         showBoard();
-        clickOnBoard();
+
+        for (int i = 0 ; i < 3 ; i++) {
+            for (int j = 0 ; j < 3 ; j++) {
+                iB[i][j].setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick (View view) {
+                        String tag = view.getTag().toString();
+                        String photo = tag.split("_")[0];
+                        int index = Integer.parseInt(tag.split("_")[1]);
+                        if (User.getCurrent().equals(game.getPlayer1())) {
+                            if (photo.equals("bread")) {
+                                game.setScoreP1(game.getScoreP1() + 1);
+                            } else if (photo.equals("cat")) {
+                                game.setScoreP1(game.getScoreP1() - 1);
+                            }
+                            game.getBoard().getCells().set(index , "e");
+                        } else {
+                            if (photo.equals("bread")) {
+                                game.setScoreP2(game.getScoreP2() - 1);
+                            } else if (photo.equals("cat")) {
+                                game.setScoreP2(game.getScoreP2() + 1);
+                            }
+                            game.getBoard().getCells().set(index , "e");
+                        }
+                        updateGame();
+                    }
+                });
+            }
+        }
     }
 
     public void showBoard () {
@@ -174,57 +207,17 @@ public class GameActivity extends AppCompatActivity {
             }
         }
     }
-    public void clickOnBoard () {
-        for (int i = 0 ; i < 3 ; i++) {
-            for (int j = 0 ; j < 3 ; j++) {
-                iB[i][j].setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick (View view) {
-                        String tag = view.getTag().toString();
-                        String photo = tag.split("_")[0];
-                        int index = Integer.parseInt(tag.split("_")[1]);
-                        if (User.getCurrent().equals(game.getPlayer1())) {
-                            if (photo.equals("bread")) {
-                                game.setScoreP1(game.getScoreP1() + 1);
-                            } else if (photo.equals("cat")) {
-                                game.setScoreP1(game.getScoreP1() - 1);
-                            }
-                            game.getBoard().getCells().set(index , "e");
-                        } else {
-                            if (photo.equals("bread")) {
-                                game.setScoreP2(game.getScoreP2() - 1);
-                            } else if (photo.equals("cat")) {
-                                game.setScoreP2(game.getScoreP2() + 1);
-                            }
-                            game.getBoard().getCells().set(index , "e");
-                        }
-                        updateGame();
-                    }
-                });
-
-            }
-        }
-    }
 
     public void createGame () {
         Random rnd = new Random();
         game = new Game(User.getCurrent() , null , (rnd.nextInt(9000) + 1000) + "" , board);
         tVCode.setText(game.getCode());
-        // Write a message to the database
+
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Game/" + game.getCode());
         myRef.setValue(game);
 
         waiting(game.getCode());
-    }
-
-    public void guest () {
-        Intent intent = getIntent();
-        String code = intent.getStringExtra("code");
-        if (code != null) {
-            guest = true;
-            waiting(code);
-        }
     }
 
     public void waiting (String code) {
@@ -234,7 +227,7 @@ public class GameActivity extends AppCompatActivity {
         // Read from the database
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange (DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
                 Game value = dataSnapshot.getValue(Game.class);

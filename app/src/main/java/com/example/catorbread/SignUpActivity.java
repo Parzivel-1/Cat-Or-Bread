@@ -16,9 +16,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import javax.annotation.Nonnull;
+
 public class SignUpActivity extends AppCompatActivity {
     EditText eTPassword , eTUsername;
     Context ctx = this;
+    boolean flag;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -36,28 +39,28 @@ public class SignUpActivity extends AppCompatActivity {
             return;
         }
         User user = new User(username , password);
-        // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Users/" + user.getUsername());
-
-        myRef.setValue(user);
-        // Read from the database
+        flag = false;
         myRef.addValueEventListener(new ValueEventListener () {
             @Override
-            public void onDataChange (DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
+            public void onDataChange (@Nonnull DataSnapshot dataSnapshot) {
+                if (flag) {
+                    return;
+                }
                 User value = dataSnapshot.getValue(User.class);
-                if (value != null && value.getPassword().equals(user.getPassword())) {
-                    Toast.makeText(ctx , "Success!" , Toast.LENGTH_SHORT).show();
+                if (value == null) {
+                    flag = true;
+                    myRef.setValue(user);
+                    Toast.makeText(ctx , "User created!" , Toast.LENGTH_SHORT).show();
                     clickBack(view);
                 } else {
-                    Toast.makeText(ctx , "Failed!" , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ctx , "Username already exists!" , Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onCancelled (DatabaseError error) {
+            public void onCancelled (@Nonnull DatabaseError error) {
                 Log.w("TAG" , "Failed to read value." , error.toException());
             }
         });
@@ -66,5 +69,6 @@ public class SignUpActivity extends AppCompatActivity {
     public void clickBack (View view) {
         Intent intent = new Intent(this , MainActivity.class);
         startActivity(intent);
+        finish();
     }
 }
