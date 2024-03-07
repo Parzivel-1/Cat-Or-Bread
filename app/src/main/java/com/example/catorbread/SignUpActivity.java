@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.database.DataSnapshot;
@@ -29,6 +32,28 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
         eTUsername = findViewById(R.id.username);
         eTPassword = findViewById(R.id.password);
+        setSupportActionBar(findViewById(R.id.Toolbar));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu (Menu menu) {
+        getMenuInflater().inflate(R.menu.log_in_menu , menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected (@NonNull MenuItem item) {
+        super.onOptionsItemSelected(item);
+        int id = item.getItemId();
+        if (id == R.id.back) {
+            back();
+            return true;
+        } else if (id == R.id.exit) {
+            finish();
+            System.exit(0);
+            return true;
+        }
+        return false;
     }
 
     public void clickCntn (View view) {
@@ -48,12 +73,12 @@ public class SignUpActivity extends AppCompatActivity {
                 if (flag) {
                     return;
                 }
+                flag = true;
                 User value = dataSnapshot.getValue(User.class);
                 if (value == null) {
-                    flag = true;
                     myRef.setValue(user);
                     Toast.makeText(ctx , "User created!" , Toast.LENGTH_SHORT).show();
-                    clickBack(view);
+                    back();
                 } else {
                     Toast.makeText(ctx , "Username already exists!" , Toast.LENGTH_SHORT).show();
                 }
@@ -66,8 +91,8 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
-    public void clickBack (View view) {
-        Intent intent = new Intent(this , MainActivity.class);
+    public void back () {
+        Intent intent = new Intent(this , StartActivity.class);
         startActivity(intent);
         finish();
     }

@@ -6,6 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".GameActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/Toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
     <TextView
         android:id="@+id/timeremain"
         android:layout_width="wrap_content"
@@ -26,20 +40,24 @@
         android:id="@+id/btnCreateGame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="67dp"
+        android:layout_marginEnd="140dp"
         android:onClick="btnClick"
         android:text="Create Room"
         tools:layout_editor_absoluteX="80dp"
-        tools:layout_editor_absoluteY="259dp" />
+        tools:layout_editor_absoluteY="270dp" />
 
     <TextView
         android:id="@+id/codeTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toStartOf="@id/btnCreateGame"
-        android:text=""
-        tools:layout_editor_absoluteX="228dp"
-        tools:layout_editor_absoluteY="130dp" />
+        android:layout_below="@id/btnCreateGame"
+        android:text="****"
+        android:layout_marginTop="-50dp"
+        android:layout_marginBottom="30dp" />
 
     <TextView
         android:id="@+id/tVP2"

@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -30,6 +32,30 @@ public class LogInActivity extends AppCompatActivity {
         setContentView(R.layout.activity_log_in);
         eTPassword = findViewById(R.id.password);
         eTUsername = findViewById(R.id.username);
+        setSupportActionBar(findViewById(R.id.Toolbar));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu (Menu menu) {
+        getMenuInflater().inflate(R.menu.log_in_menu , menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected (@NonNull MenuItem item) {
+        super.onOptionsItemSelected(item);
+        int id = item.getItemId();
+        if (id == R.id.back) {
+            Intent intent = new Intent(this , StartActivity.class);
+            startActivity(intent);
+            finish();
+            return true;
+        } else if (id == R.id.exit) {
+            finish();
+            System.exit(0);
+            return true;
+        }
+        return false;
     }
 
     public void clickCntn (View view) {
@@ -48,16 +74,16 @@ public class LogInActivity extends AppCompatActivity {
                 if (flag) {
                     return;
                 }
+                flag = true;
                 User value = dataSnapshot.getValue(User.class);
                 if (value.getConnected()) {
                     Toast.makeText(ctx , "User already logged in!" , Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (value != null && value.getPassword().equals(password)) {
-                    flag = true;
                     User.setCurrent(value.getUsername());
                     myRef.getRef().child("connected").setValue(true);
-                    Intent intent = new Intent(ctx , MenuActivity.class);
+                    Intent intent = new Intent(ctx , MainActivity.class);
                     startActivity(intent);
                     finish();
                 } else {
@@ -70,11 +96,5 @@ public class LogInActivity extends AppCompatActivity {
                 Log.w("TAG" , "Failed to read value." , error.toException());
             }
         });
-    }
-
-    public void clickBack (View view) {
-        Intent intent = new Intent(this , MainActivity.class);
-        startActivity(intent);
-        finish();
     }
 }

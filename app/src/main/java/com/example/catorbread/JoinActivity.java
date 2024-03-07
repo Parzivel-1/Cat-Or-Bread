@@ -64,7 +64,7 @@ public class JoinActivity extends AppCompatActivity {
     }
 
     public void clickBack (View view) {
-        Intent intent = new Intent(this , MenuActivity.class);
+        Intent intent = new Intent(this , MainActivity.class);
         startActivity(intent);
     }
 }

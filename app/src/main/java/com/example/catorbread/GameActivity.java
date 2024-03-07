@@ -1,5 +1,6 @@
 package com.example.catorbread;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -42,6 +43,7 @@ public class GameActivity extends AppCompatActivity {
         tVP1 = findViewById(R.id.tVP1);
         time = findViewById(R.id.timeTV);
         tVP1.setText(User.getCurrent());
+        setSupportActionBar(findViewById(R.id.Toolbar));
         String code = getIntent().getStringExtra("code");
         if (code != null) {
             guest = true;
@@ -55,11 +57,14 @@ public class GameActivity extends AppCompatActivity {
         DatabaseReference myRef = database.getReference("Game/" + game.getCode());
         myRef.addValueEventListener(new ValueEventListener () {
             @Override
-            public void onDataChange (DataSnapshot dataSnapshot) {
+            public void onDataChange (@NonNull DataSnapshot dataSnapshot) {
                 if (game.getTime() == 0) {
                     endGame();
                 }
                 game = dataSnapshot.getValue(Game.class);
+                if (game == null) {
+                    return;
+                }
                 if (game.getPlayer1().equals(User.getCurrent())) {
                     if (timer != game.getTime()) {
                         game.setTime(timer);
@@ -73,8 +78,7 @@ public class GameActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled (DatabaseError error) {
-                // Failed to read value
+            public void onCancelled (@NonNull DatabaseError error) {
                 Log.w("Failed to read value.", error.toException());
             }
         });
@@ -224,12 +228,9 @@ public class GameActivity extends AppCompatActivity {
         btnCreateGame.setVisibility(View.INVISIBLE);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Game/" + code);
-        // Read from the database
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange (DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
+            public void onDataChange (@NonNull DataSnapshot dataSnapshot) {
                 Game value = dataSnapshot.getValue(Game.class);
                 if (value != null && value.getPlayer2() != null) {
                     game = value;
@@ -248,8 +249,7 @@ public class GameActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled (DatabaseError error) {
-                // Failed to read value
+            public void onCancelled (@NonNull DatabaseError error) {
                 Log.w("TAG" , "Failed to read value." , error.toException());
             }
         });
