@@ -32,7 +32,6 @@ public class GameActivity extends AppCompatActivity {
     ImageButton [][] iB = new ImageButton [3][3];
     boolean waiting = false;
 
-
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,7 +40,7 @@ public class GameActivity extends AppCompatActivity {
         tVCode = findViewById(R.id.codeTV);
         tVP2 = findViewById(R.id.tVP2);
         tVP1 = findViewById(R.id.tVP1);
-        time = findViewById(R.id.timeTV);
+        time = findViewById(R.id.tVTime);
         tVP1.setText(User.getCurrent());
         setSupportActionBar(findViewById(R.id.Toolbar));
         String code = getIntent().getStringExtra("code");
