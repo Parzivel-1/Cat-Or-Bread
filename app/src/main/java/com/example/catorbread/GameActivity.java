@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -21,6 +23,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.annotation.Nonnull;
+
 public class GameActivity extends AppCompatActivity {
     boolean guest = false;
     boolean gameStart = false;
@@ -31,6 +35,7 @@ public class GameActivity extends AppCompatActivity {
     int timer = 30;
     ImageButton [][] iB = new ImageButton [3][3];
     boolean waiting = false;
+    boolean flag;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -40,6 +45,8 @@ public class GameActivity extends AppCompatActivity {
         tVCode = findViewById(R.id.codeTV);
         tVP2 = findViewById(R.id.tVP2);
         tVP1 = findViewById(R.id.tVP1);
+        tVP1S = findViewById(R.id.P1score);
+        tVP2S = findViewById(R.id.P2score);
         time = findViewById(R.id.tVTime);
         tVP1.setText(User.getCurrent());
         setSupportActionBar(findViewById(R.id.Toolbar));
@@ -51,14 +58,37 @@ public class GameActivity extends AppCompatActivity {
         initBoard();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu (Menu menu) {
+        getMenuInflater().inflate(R.menu.game_menu , menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected (@NonNull MenuItem item) {
+        super.onOptionsItemSelected(item);
+        int id = item.getItemId();
+        if (id == R.id.leave) {
+            Intent intent = new Intent(this , StartActivity.class);
+            startActivity(intent);
+            finish();
+            return true;
+        } else if (id == R.id.exit) {
+            finish();
+            System.exit(0);
+            return true;
+        }
+        return false;
+    }
+
     public void updateGameProcess () {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Game/" + game.getCode());
+        DatabaseReference myRef = database.getReference("Games/" + game.getCode());
         myRef.addValueEventListener(new ValueEventListener () {
             @Override
             public void onDataChange (@NonNull DataSnapshot dataSnapshot) {
                 if (game.getTime() == 0) {
-                    endGame();
+                    return;
                 }
                 game = dataSnapshot.getValue(Game.class);
                 if (game == null) {
@@ -91,6 +121,7 @@ public class GameActivity extends AppCompatActivity {
         intent.putExtra("sP2" , game.getScoreP2());
         intent.putExtra("code" , game.getCode());
         startActivity(intent);
+        finish();
     }
 
     public void timer () {
@@ -119,7 +150,7 @@ public class GameActivity extends AppCompatActivity {
         showBoard();
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Game/" + game.getCode());
+        DatabaseReference myRef = database.getReference("Games/" + game.getCode());
         myRef.setValue(game);
     }
 
@@ -138,6 +169,7 @@ public class GameActivity extends AppCompatActivity {
 
     public void initBoard () {
         board = new Board ();
+        /*
         int counter = 1;
         for (int i = 0; i < 3 ; i++) {
             for (int j = 0; j < 3 ; j++) {
@@ -147,6 +179,16 @@ public class GameActivity extends AppCompatActivity {
                 counter++;
             }
         }
+         */
+        iB[0][0] = findViewById(R.id.btn1);
+        iB[0][1] = findViewById(R.id.btn2);
+        iB[0][2] = findViewById(R.id.btn3);
+        iB[1][0] = findViewById(R.id.btn4);
+        iB[1][1] = findViewById(R.id.btn5);
+        iB[1][2] = findViewById(R.id.btn6);
+        iB[2][0] = findViewById(R.id.btn7);
+        iB[2][1] = findViewById(R.id.btn8);
+        iB[2][2] = findViewById(R.id.btn9);
 
         showBoard();
 
@@ -217,17 +259,36 @@ public class GameActivity extends AppCompatActivity {
         tVCode.setText(game.getCode());
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Game/" + game.getCode());
-        myRef.setValue(game);
+        DatabaseReference myRef = database.getReference("Games/" + game.getCode());
+        flag = false;
+        myRef.addValueEventListener(new ValueEventListener () {
+            @Override
+            public void onDataChange (@Nonnull DataSnapshot dataSnapshot) {
+                if (flag) {
+                    return;
+                }
+                flag = true;
+                Game value = dataSnapshot.getValue(Game.class);
+                if (value != null) {
+                    createGame();
+                } else {
+                    myRef.setValue(game);
+                    waiting(game.getCode());
+                }
+            }
 
-        waiting(game.getCode());
+            @Override
+            public void onCancelled (@Nonnull DatabaseError error) {
+                Log.w("TAG" , "Failed to read value." , error.toException());
+            }
+        });
     }
 
     public void waiting (String code) {
         btnCreateGame.setVisibility(View.INVISIBLE);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Game/" + code);
-        myRef.addValueEventListener(new ValueEventListener() {
+        DatabaseReference myRef = database.getReference("Games/" + code);
+        myRef.addValueEventListener(new ValueEventListener () {
             @Override
             public void onDataChange (@NonNull DataSnapshot dataSnapshot) {
                 Game value = dataSnapshot.getValue(Game.class);
@@ -261,7 +322,6 @@ public class GameActivity extends AppCompatActivity {
             createGame();
         } else if (btnCreateGame.getText().toString().equals("Start Game")) {
             btnCreateGame.setVisibility(View.INVISIBLE);
-            btnCreateGame.setText("Game Start");
             startGame();
         }
     }

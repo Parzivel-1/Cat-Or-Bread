@@ -20,6 +20,7 @@ public class JoinActivity extends AppCompatActivity {
     EditText eTCode;
     Context ctx = this;
     String code;
+    boolean flag;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -30,19 +31,21 @@ public class JoinActivity extends AppCompatActivity {
 
     public void joinGame (View view) {
         code = eTCode.getText().toString();
-
         if (code.isEmpty()) {
             Toast.makeText(ctx , "Please enter a game code" , Toast.LENGTH_SHORT).show();
             return;
         }
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Game/" + code);
-
-        // Read from the database
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference myRef = database.getReference("Games/" + code);
+        flag = false;
+        myRef.addListenerForSingleValueEvent(new ValueEventListener () {
             @Override
             public void onDataChange (DataSnapshot dataSnapshot) {
+                if (flag) {
+                    return;
+                }
+                flag = true;
                 Game value = dataSnapshot.getValue(Game.class);
                 if (value == null || value.getPlayer2() != null){
                     Toast.makeText(JoinActivity.this , "Game not found", Toast.LENGTH_SHORT).show();
@@ -56,8 +59,7 @@ public class JoinActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
+            public void onCancelled (DatabaseError error) {
                 Log.w("TAG", "Failed to read value.", error.toException());
             }
         });

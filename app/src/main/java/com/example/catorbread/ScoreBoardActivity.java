@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -12,7 +13,7 @@ public class ScoreBoardActivity extends AppCompatActivity {
     Button button;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_score_board);
         tVCode = findViewById(R.id.code);
@@ -27,5 +28,10 @@ public class ScoreBoardActivity extends AppCompatActivity {
         tVP1Score.setText(intent.getIntExtra("sP1" , 0) + "");
         tVP2Sore.setText(intent.getIntExtra("sP2" , 0) + "");
         tVCode.setText(intent.getStringExtra("code"));
+    }
+
+    public void cntn (View view) {
+        Intent intent = new Intent(this , MainActivity.class);
+        startActivity(intent);
     }
 }
