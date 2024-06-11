@@ -4,7 +4,6 @@ public class User {
     private String username;
     private String password;
     private int score;
-    private boolean connected;
     private static String current;
 
     public static String getCurrent () {
@@ -15,9 +14,10 @@ public class User {
         User.current = current;
     }
 
-    public User (String username , String password) {
+    public User (String username , String password , int score) {
         this.username = username;
         this.password = password;
+        this.score = score;
     }
 
     public User () {
@@ -45,13 +45,5 @@ public class User {
 
     public void setPassword (String password) {
         this.password = password;
-    }
-
-    public boolean getConnected () {
-        return connected;
-    }
-
-    public void setConnected (boolean connected) {
-        this.connected = connected;
     }
 }

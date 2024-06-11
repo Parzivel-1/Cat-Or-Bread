@@ -169,17 +169,6 @@ public class GameActivity extends AppCompatActivity {
 
     public void initBoard () {
         board = new Board ();
-        /*
-        int counter = 1;
-        for (int i = 0; i < 3 ; i++) {
-            for (int j = 0; j < 3 ; j++) {
-                int id = getResources().getIdentifier("btn" + counter , "id" , this.getPackageName());
-                iB[i][j] = findViewById(id);
-                iB[i][j].setVisibility(View.INVISIBLE);
-                counter++;
-            }
-        }
-         */
         iB[0][0] = findViewById(R.id.btn1);
         iB[0][1] = findViewById(R.id.btn2);
         iB[0][2] = findViewById(R.id.btn3);
@@ -189,7 +178,11 @@ public class GameActivity extends AppCompatActivity {
         iB[2][0] = findViewById(R.id.btn7);
         iB[2][1] = findViewById(R.id.btn8);
         iB[2][2] = findViewById(R.id.btn9);
-
+        for (int i = 0; i < 3 ; i++) {
+            for (int j = 0; j < 3 ; j++) {
+                iB[i][j].setVisibility(View.INVISIBLE);
+            }
+        }
         showBoard();
 
         for (int i = 0 ; i < 3 ; i++) {

@@ -63,7 +63,7 @@ public class SignUpActivity extends AppCompatActivity {
             Toast.makeText(ctx , "Please fill all the fields." , Toast.LENGTH_SHORT).show();
             return;
         }
-        User user = new User(username , password);
+        User user = new User (username , password , 0);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Users/" + user.getUsername());
         flag = false;
