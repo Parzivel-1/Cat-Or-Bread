@@ -1,16 +1,13 @@
 package com.example.catorbread;
 
+import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.database.DataSnapshot;
@@ -22,7 +19,7 @@ import com.google.firebase.database.ValueEventListener;
 import javax.annotation.Nonnull;
 
 public class SignUpActivity extends AppCompatActivity {
-    EditText eTPassword , eTUsername;
+    EditText eTUsername , eTPassword , eTConfirmPassword;
     Context ctx = this;
     boolean flag;
 
@@ -32,37 +29,30 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
         eTUsername = findViewById(R.id.username);
         eTPassword = findViewById(R.id.password);
-        setSupportActionBar(findViewById(R.id.Toolbar));
+        eTConfirmPassword = findViewById(R.id.confirmPassword);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu (Menu menu) {
-        getMenuInflater().inflate(R.menu.log_in_menu , menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected (@NonNull MenuItem item) {
-        super.onOptionsItemSelected(item);
-        int id = item.getItemId();
-        if (id == R.id.back) {
-            back();
-            return true;
-        } else if (id == R.id.exit) {
-            finish();
-            System.exit(0);
-            return true;
-        }
-        return false;
-    }
-
-    public void clickCntn (View view) {
+    public void signUp (View view) {
         String username = eTUsername.getText().toString();
         String password = eTPassword.getText().toString();
-        if (username.isEmpty() || password.isEmpty()) {
+        String confirmPassword = eTConfirmPassword.getText().toString();
+        if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             Toast.makeText(ctx , "Please fill all the fields." , Toast.LENGTH_SHORT).show();
             return;
+        } else if (!password.equals(confirmPassword)) {
+            Toast.makeText(ctx , "Passwords do not match." , Toast.LENGTH_SHORT).show();
+            return;
         }
+        AlertDialog.Builder builder = new AlertDialog.Builder (this);
+        builder.setMessage("You're about to create an account named:\n" + username + "\n\nAre you sure?");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Yes" , (dialog , which) -> createUser(username , password));
+        builder.setNegativeButton("No" , (dialog , which) -> dialog.cancel());
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    public void createUser (String username , String password) {
         User user = new User (username , password , 0);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Users/" + user.getUsername());
@@ -78,7 +68,7 @@ public class SignUpActivity extends AppCompatActivity {
                 if (value == null) {
                     myRef.setValue(user);
                     Toast.makeText(ctx , "User created!" , Toast.LENGTH_SHORT).show();
-                    back();
+                    finish();
                 } else {
                     Toast.makeText(ctx , "Username already exists!" , Toast.LENGTH_SHORT).show();
                 }
@@ -91,9 +81,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
-    public void back () {
-        Intent intent = new Intent(this , StartActivity.class);
-        startActivity(intent);
+    public void back (View view) {
         finish();
     }
 }

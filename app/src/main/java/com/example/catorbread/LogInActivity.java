@@ -1,6 +1,5 @@
 package com.example.catorbread;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -8,8 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -36,33 +33,9 @@ public class LogInActivity extends AppCompatActivity {
         eTPassword = findViewById(R.id.password);
         eTUsername = findViewById(R.id.username);
         checkbox = findViewById(R.id.checkbox);
-        setSupportActionBar(findViewById(R.id.Toolbar));
     }
 
-    @Override
-    public boolean onCreateOptionsMenu (Menu menu) {
-        getMenuInflater().inflate(R.menu.log_in_menu , menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected (@NonNull MenuItem item) {
-        super.onOptionsItemSelected(item);
-        int id = item.getItemId();
-        if (id == R.id.back) {
-            Intent intent = new Intent(this , StartActivity.class);
-            startActivity(intent);
-            finish();
-            return true;
-        } else if (id == R.id.exit) {
-            finish();
-            System.exit(0);
-            return true;
-        }
-        return false;
-    }
-
-    public void clickCntn (View view) {
+    public void logIn (View view) {
         String user = eTUsername.getText().toString();
         String password = eTPassword.getText().toString();
         if (user.isEmpty() || password.isEmpty()) {
@@ -90,7 +63,7 @@ public class LogInActivity extends AppCompatActivity {
                         editor.putBoolean("save" , checkbox.isChecked());
                         editor.apply();
                     }
-                    Intent intent = new Intent(ctx , MainActivity.class);
+                    Intent intent = new Intent (ctx , MainActivity.class);
                     startActivity(intent);
                     finish();
                 } else {
@@ -103,5 +76,9 @@ public class LogInActivity extends AppCompatActivity {
                 Log.w("TAG" , "Failed to read value." , error.toException());
             }
         });
+    }
+
+    public void back (View view) {
+        finish();
     }
 }

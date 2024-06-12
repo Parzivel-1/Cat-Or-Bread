@@ -22,7 +22,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu (Menu menu) {
-        getMenuInflater().inflate(R.menu.log_in_menu , menu);
+        getMenuInflater().inflate(R.menu.settings_menu , menu);
         return true;
     }
 
@@ -31,10 +31,15 @@ public class SettingsActivity extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         int id = item.getItemId();
         if (id == R.id.back) {
-            Intent intent = new Intent(this , MainActivity.class);
+            Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
             return true;
+        } else if (id == R.id.logout) {
+            getSharedPreferences("user" , MODE_PRIVATE).edit().putBoolean("save" , false).apply();
+            getSharedPreferences("user" , MODE_PRIVATE).edit().putString("password" , "").apply();
+            User.setCurrent("");
+            finish();
         } else if (id == R.id.exit) {
             finish();
             System.exit(0);

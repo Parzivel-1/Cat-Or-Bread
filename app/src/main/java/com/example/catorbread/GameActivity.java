@@ -114,7 +114,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void endGame () {
-        Intent intent = new Intent(this , ScoreBoardActivity.class);
+        Intent intent = new Intent (this , ScoreBoardActivity.class);
         intent.putExtra("player1" , game.getPlayer1());
         intent.putExtra("player2" , game.getPlayer2());
         intent.putExtra("sP1" , game.getScoreP1());
@@ -129,7 +129,7 @@ public class GameActivity extends AppCompatActivity {
             return;
         }
         game.setTime(30);
-        new CountDownTimer (30 * 1000 , 1000) {
+        new CountDownTimer (30000 , 1000) {
             public void onTick (long millisUntilFinished) {
                 // time.setText(game.getTime()+"");
                 timer--;
@@ -247,8 +247,8 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void createGame () {
-        Random rnd = new Random();
-        game = new Game(User.getCurrent() , null , (rnd.nextInt(9000) + 1000) + "" , board);
+        Random rnd = new Random ();
+        game = new Game (User.getCurrent() , null , (rnd.nextInt(9000) + 1000) + "" , board);
         tVCode.setText(game.getCode());
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
