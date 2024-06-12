@@ -2,6 +2,7 @@ package com.example.catorbread;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -68,6 +69,9 @@ public class SignUpActivity extends AppCompatActivity {
                 if (value == null) {
                     myRef.setValue(user);
                     Toast.makeText(ctx , "User created!" , Toast.LENGTH_SHORT).show();
+                    User.setCurrent(username);
+                    Intent intent = new Intent (ctx , MainActivity.class);
+                    startActivity(intent);
                     finish();
                 } else {
                     Toast.makeText(ctx , "Username already exists!" , Toast.LENGTH_SHORT).show();

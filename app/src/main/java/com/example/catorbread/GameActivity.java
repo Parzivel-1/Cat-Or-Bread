@@ -69,7 +69,7 @@ public class GameActivity extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         int id = item.getItemId();
         if (id == R.id.leave) {
-            Intent intent = new Intent(this , StartActivity.class);
+            Intent intent = new Intent (this , MainActivity.class);
             startActivity(intent);
             finish();
             return true;
@@ -131,7 +131,6 @@ public class GameActivity extends AppCompatActivity {
         game.setTime(30);
         new CountDownTimer (30000 , 1000) {
             public void onTick (long millisUntilFinished) {
-                // time.setText(game.getTime()+"");
                 timer--;
                 game.setTime(timer);
                 updateGame();

@@ -40,28 +40,32 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return true;
         } else if (id == R.id.logout) {
-            logout(false);
+            logOut(false);
             return true;
         } else if (id == R.id.exit) {
-            logout(true);
+            logOut(true);
             return true;
         }
         return false;
     }
 
-    public void joinGame (View view) {
-        Intent intent = new Intent(this , JoinActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
     public void createGame (View view) {
-        Intent intent = new Intent(this , GameActivity.class);
+        Intent intent = new Intent (this , GameActivity.class);
         startActivity(intent);
         finish();
     }
 
-    public void logout (boolean close) {
+    public void joinGame (View view) {
+        Intent intent = new Intent (this , JoinActivity.class);
+        startActivity(intent);
+    }
+
+    public void viewProfile (View view) {
+        Intent intent = new Intent (this , ProfileActivity.class);
+        startActivity(intent);
+    }
+
+    public void logOut (boolean close) {
         getSharedPreferences("user" , MODE_PRIVATE).edit().putBoolean("save" , false).apply();
         getSharedPreferences("user" , MODE_PRIVATE).edit().putString("password" , "").apply();
         User.setCurrent("");

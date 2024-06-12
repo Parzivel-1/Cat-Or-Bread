@@ -31,7 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         int id = item.getItemId();
         if (id == R.id.back) {
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent (this , MainActivity.class);
             startActivity(intent);
             finish();
             return true;
@@ -49,12 +49,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public void changePassword (View view) {
-        Intent intent = new Intent(ctx , ChangePasswordActivity.class);
+        Intent intent = new Intent (ctx , ChangePasswordActivity.class);
         startActivity(intent);
-    }
-
-    public void changeUsername (View view) {
-        //Intent intent = new Intent(ctx , ChangeActivity.class);
-        //startActivity(intent);
     }
 }

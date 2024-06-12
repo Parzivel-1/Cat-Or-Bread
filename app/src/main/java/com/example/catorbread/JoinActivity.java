@@ -48,14 +48,15 @@ public class JoinActivity extends AppCompatActivity {
                 flag = true;
                 Game value = dataSnapshot.getValue(Game.class);
                 if (value == null || value.getPlayer2() != null){
-                    Toast.makeText(JoinActivity.this , "Game not found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(JoinActivity.this , "Game not found.", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 value.setPlayer2(User.getCurrent());
                 myRef.setValue(value);
-                Intent intent = new Intent(ctx , GameActivity.class);
+                Intent intent = new Intent (ctx , GameActivity.class);
                 intent.putExtra("code" , code);
                 startActivity(intent);
+                finish();
             }
 
             @Override
@@ -65,8 +66,7 @@ public class JoinActivity extends AppCompatActivity {
         });
     }
 
-    public void clickBack (View view) {
-        Intent intent = new Intent(this , MainActivity.class);
-        startActivity(intent);
+    public void back (View view) {
+        finish();
     }
 }
