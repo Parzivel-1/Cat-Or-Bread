@@ -32,7 +32,7 @@ public class GameActivity extends AppCompatActivity {
     TextView tVCode , tVP2 , tVP1 , tVP1S , tVP2S , time;
     Game game;
     Board board;
-    int timer = 30;
+    int timer , current_score;
     ImageButton [][] iB = new ImageButton [3][3];
     boolean waiting = false;
     boolean flag;
@@ -49,6 +49,7 @@ public class GameActivity extends AppCompatActivity {
         tVP2S = findViewById(R.id.P2score);
         time = findViewById(R.id.tVTime);
         tVP1.setText(User.getCurrent());
+        timer = 30;
         setSupportActionBar(findViewById(R.id.Toolbar));
         String code = getIntent().getStringExtra("code");
         if (code != null) {
@@ -104,16 +105,41 @@ public class GameActivity extends AppCompatActivity {
                 tVP1S.setText(game.getScoreP1() + "");
                 tVP2S.setText(game.getScoreP2() + "");
                 showBoard();
+                if (game.getTime() == 0) {
+                    endGame();
+                }
             }
 
             @Override
             public void onCancelled (@NonNull DatabaseError error) {
-                Log.w("Failed to read value.", error.toException());
+                Log.w("TAG" , "Failed to read value." , error.toException());
             }
         });
     }
 
     public void endGame () {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRefUser = database.getReference("Users/" + User.getCurrent());
+        flag = false;
+        myRefUser.addValueEventListener(new ValueEventListener () {
+            @Override
+            public void onDataChange (@Nonnull DataSnapshot dataSnapshot) {
+                if (flag) {
+                    return;
+                }
+                flag = true;
+                User value = dataSnapshot.getValue(User.class);
+                current_score = value.getScore();
+                myRefUser.child("score").setValue(current_score + game.getScoreP1());
+            }
+
+            @Override
+            public void onCancelled (@NonNull DatabaseError error) {
+                Log.w("TAG" , "Failed to read value." , error.toException());
+            }
+        });
+        DatabaseReference myRefGame = database.getReference("Games/" + game.getCode());
+        myRefGame.removeValue();
         Intent intent = new Intent (this , ScoreBoardActivity.class);
         intent.putExtra("player1" , game.getPlayer1());
         intent.putExtra("player2" , game.getPlayer2());

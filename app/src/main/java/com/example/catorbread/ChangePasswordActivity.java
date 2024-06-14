@@ -68,7 +68,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onCancelled (@NonNull DatabaseError error) {
                 Log.w("TAG" , "Failed to read value." , error.toException());
             }
         });
