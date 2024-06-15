@@ -52,4 +52,9 @@ public class SettingsActivity extends AppCompatActivity {
         Intent intent = new Intent (ctx , ChangePasswordActivity.class);
         startActivity(intent);
     }
+
+    public void changePicture (View view) {
+        Intent intent = new Intent (ctx , ChangePictureActivity.class);
+        startActivity(intent);
+    }
 }

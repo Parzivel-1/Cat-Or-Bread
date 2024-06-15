@@ -8,14 +8,6 @@ public class Game {
     private int time;
     private int ScoreP1 , ScoreP2;
 
-    public Board getBoard () {
-        return board;
-    }
-
-    public void setBoard (Board board) {
-        this.board = board;
-    }
-
     public Game (String player1 , String player2 , String code , Board board , int time , int ScoreP1 , int ScoreP2) {
         this.player1 = player1;
         this.player2 = player2;
@@ -24,6 +16,25 @@ public class Game {
         this.time = time;
         this.ScoreP1 = ScoreP1;
         this.ScoreP2 = ScoreP2;
+    }
+
+    public Game (String player1 , String player2 , String code , Board board , int time) {
+        this.player1 = player1;
+        this.player2 = player2;
+        this.code = code;
+        this.board = board;
+        this.time = time;
+    }
+
+    public Game () {
+    }
+
+    public Board getBoard () {
+        return board;
+    }
+
+    public void setBoard (Board board) {
+        this.board = board;
     }
 
     public int getTime () {
@@ -48,22 +59,6 @@ public class Game {
 
     public void setScoreP2 (int ScoreP2) {
         this.ScoreP2 = ScoreP2;
-    }
-
-    public Game (String player1 , String player2 , String code , Board board) {
-        this.player1 = player1;
-        this.player2 = player2;
-        this.code = code;
-        this.board = board;
-    }
-
-    public Game (String player1 , String player2 , String code) {
-        this.player1 = player1;
-        this.player2 = player2;
-        this.code = code;
-    }
-
-    public Game () {
     }
 
     public String getPlayer1 () {

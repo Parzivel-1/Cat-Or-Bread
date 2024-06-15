@@ -32,9 +32,9 @@ public class GameActivity extends AppCompatActivity {
     TextView tVCode , tVP2 , tVP1 , tVP1S , tVP2S , time;
     Game game;
     Board board;
-    int timer , current_score;
+    int timer;
     ImageButton [][] iB = new ImageButton [3][3];
-    boolean waiting = false;
+    boolean waiting = true;
     boolean flag;
 
     @Override
@@ -51,12 +51,13 @@ public class GameActivity extends AppCompatActivity {
         tVP1.setText(User.getCurrent());
         timer = 30;
         setSupportActionBar(findViewById(R.id.Toolbar));
-        String code = getIntent().getStringExtra("code");
-        if (code != null) {
+        String role = getIntent().getStringExtra("role");
+        if (role.equals("guest")) {
             guest = true;
+            btnCreateGame.setVisibility(View.INVISIBLE);
+            String code = getIntent().getStringExtra("code");
             waiting(code);
         }
-        initBoard();
     }
 
     @Override
@@ -82,31 +83,27 @@ public class GameActivity extends AppCompatActivity {
         return false;
     }
 
-    public void updateGameProcess () {
+    public void RunningGame () {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Games/" + game.getCode());
         myRef.addValueEventListener(new ValueEventListener () {
             @Override
             public void onDataChange (@NonNull DataSnapshot dataSnapshot) {
-                if (game.getTime() == 0) {
-                    return;
-                }
                 game = dataSnapshot.getValue(Game.class);
                 if (game == null) {
                     return;
-                }
-                if (game.getPlayer1().equals(User.getCurrent())) {
-                    if (timer != game.getTime()) {
-                        game.setTime(timer);
-                        updateGame();
-                    }
+                } else if (game.getTime() == 0) {
+                    endGame();
+                } else if (!guest) {
+                    game.getBoard().scan();
+                    showBoard();
                 }
                 time.setText(game.getTime() + "");
                 tVP1S.setText(game.getScoreP1() + "");
                 tVP2S.setText(game.getScoreP2() + "");
                 showBoard();
-                if (game.getTime() == 0) {
-                    endGame();
+                if (!guest && game.getTime() > 0) {
+                    myRef.setValue(game);
                 }
             }
 
@@ -119,27 +116,8 @@ public class GameActivity extends AppCompatActivity {
 
     public void endGame () {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRefUser = database.getReference("Users/" + User.getCurrent());
-        flag = false;
-        myRefUser.addValueEventListener(new ValueEventListener () {
-            @Override
-            public void onDataChange (@Nonnull DataSnapshot dataSnapshot) {
-                if (flag) {
-                    return;
-                }
-                flag = true;
-                User value = dataSnapshot.getValue(User.class);
-                current_score = value.getScore();
-                myRefUser.child("score").setValue(current_score + game.getScoreP1());
-            }
-
-            @Override
-            public void onCancelled (@NonNull DatabaseError error) {
-                Log.w("TAG" , "Failed to read value." , error.toException());
-            }
-        });
-        DatabaseReference myRefGame = database.getReference("Games/" + game.getCode());
-        myRefGame.removeValue();
+        DatabaseReference myRef = database.getReference("Games/" + game.getCode());
+        myRef.removeValue();
         Intent intent = new Intent (this , ScoreBoardActivity.class);
         intent.putExtra("player1" , game.getPlayer1());
         intent.putExtra("player2" , game.getPlayer2());
@@ -150,46 +128,34 @@ public class GameActivity extends AppCompatActivity {
         finish();
     }
 
-    public void timer () {
-        if (game.getPlayer2().equals(User.getCurrent())) {
+    public void timerFunc () {
+        if (guest) {
             return;
         }
-        game.setTime(30);
-        new CountDownTimer (30000 , 1000) {
+        game.setTime(timer);
+        new CountDownTimer (timer * 1000 , 1000) {
             public void onTick (long millisUntilFinished) {
                 timer--;
                 game.setTime(timer);
-                updateGame();
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference myRef = database.getReference("Games/" + game.getCode());
+                myRef.setValue(game);
             }
 
             public void onFinish () {
                 game.setTime(0);
-                updateGame();
-                endGame();
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference myRef = database.getReference("Games/" + game.getCode());
+                myRef.setValue(game);
             }
         }.start();
     }
 
-    public void updateGame () {
-        game.getBoard().scan();
-        showBoard();
-
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Games/" + game.getCode());
-        myRef.setValue(game);
-    }
-
     public void startGame () {
         gameStart = true;
-        tVP1S.setText(game.getScoreP1() + "");
-        tVP2S.setText(game.getScoreP2() + "");
-        for (int i = 0 ; i < 3 ; i++) {
-            for (int j = 0 ; j < 3 ; j++) {
-                iB[i][j].setVisibility(View.VISIBLE);
-            }
-        }
-        timer();
-        updateGameProcess();
+        showBoard();
+        timerFunc();
+        RunningGame();
     }
 
     public void initBoard () {
@@ -233,7 +199,6 @@ public class GameActivity extends AppCompatActivity {
                             }
                             game.getBoard().getCells().set(index , "e");
                         }
-                        updateGame();
                     }
                 });
             }
@@ -273,7 +238,8 @@ public class GameActivity extends AppCompatActivity {
 
     public void createGame () {
         Random rnd = new Random ();
-        game = new Game (User.getCurrent() , null , (rnd.nextInt(9000) + 1000) + "" , board);
+        initBoard();
+        game = new Game (User.getCurrent() , null , (rnd.nextInt(9000) + 1000) + "" , board , timer);
         tVCode.setText(game.getCode());
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -303,26 +269,36 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void waiting (String code) {
-        btnCreateGame.setVisibility(View.INVISIBLE);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Games/" + code);
         myRef.addValueEventListener(new ValueEventListener () {
             @Override
             public void onDataChange (@NonNull DataSnapshot dataSnapshot) {
+                if (!waiting) {
+                    return;
+                }
                 Game value = dataSnapshot.getValue(Game.class);
-                if (value != null && value.getPlayer2() != null) {
+                if (guest && value != null && value.getPlayer2() == null) {
+                    value.setPlayer2(User.getCurrent());
                     game = value;
-                    tVP1.setText(value.getPlayer1());
-                    tVP2.setText(value.getPlayer2());
-                    tVCode.setText(value.getCode());
-                    if (value.getTime() > 0 && guest) {
-                        startGame();
-                    }
+                    myRef.setValue(game);
+                }
+                tVP1.setText(value.getPlayer1());
+                tVP2.setText(value.getPlayer2());
+                tVCode.setText(value.getCode());
+                if (!guest && value.getPlayer2() != null) {
                     waiting = false;
-                    if (!btnCreateGame.getText().toString().equals("Game Start") && !guest) {
-                        btnCreateGame.setText("Start Game");
-                        btnCreateGame.setVisibility(View.VISIBLE);
-                    }
+                    btnCreateGame.setText("Start Game");
+                    btnCreateGame.setVisibility(View.VISIBLE);
+                } else if (gameStart) {
+                    waiting = false;
+                    btnCreateGame.setVisibility(View.INVISIBLE);
+                } else if (guest && value.getPlayer2() != null){
+                    btnCreateGame.setText("Waiting for player 1 to start the game");
+                    btnCreateGame.setVisibility(View.VISIBLE);
+                } else {
+                    btnCreateGame.setText("Waiting for player 2 to join the game");
+                    btnCreateGame.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -335,8 +311,7 @@ public class GameActivity extends AppCompatActivity {
 
     public void btnClick (View view) {
         if (btnCreateGame.getText().toString().equals("Create Room")) {
-            waiting = true;
-            btnCreateGame.setText("");
+            btnCreateGame.setVisibility(View.INVISIBLE);
             createGame();
         } else if (btnCreateGame.getText().toString().equals("Start Game")) {
             btnCreateGame.setVisibility(View.INVISIBLE);

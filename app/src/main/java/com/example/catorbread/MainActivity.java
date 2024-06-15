@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void createGame (View view) {
         Intent intent = new Intent (this , GameActivity.class);
+        intent.putExtra("role" , "host");
         startActivity(intent);
-        finish();
     }
 
     public void joinGame (View view) {

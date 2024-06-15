@@ -36,6 +36,7 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:32.7.3"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-storage:19.2.1")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

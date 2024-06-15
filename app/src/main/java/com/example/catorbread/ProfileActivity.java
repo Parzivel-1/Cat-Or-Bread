@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Context;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.view.View;
 
@@ -14,11 +15,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 
 import javax.annotation.Nonnull;
 
 public class ProfileActivity extends AppCompatActivity {
     TextView tVscore , tVusername;
+    ImageView iVprofile;
     Context ctx = this;
     boolean flag;
 
@@ -28,6 +31,7 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         tVscore = findViewById(R.id.score);
         tVusername = findViewById(R.id.username);
+        iVprofile = findViewById(R.id.imageView);
         showProfile();
     }
 
@@ -52,6 +56,8 @@ public class ProfileActivity extends AppCompatActivity {
                 Log.w("TAG" , "Failed to read value." , error.toException());
             }
         });
+
+        ChangePictureActivity.loadProfilePicture(ctx , iVprofile , FirebaseStorage.getInstance().getReference());
     }
 
     public void back (View view) {

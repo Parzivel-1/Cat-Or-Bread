@@ -17,6 +17,7 @@ import com.google.firebase.database.ValueEventListener;
 import javax.annotation.Nonnull;
 
 public class SplashActivity extends AppCompatActivity {
+    String user = "" , password = "";
     Context ctx = this;
     boolean flag;
     boolean loggedin;
@@ -30,8 +31,8 @@ public class SplashActivity extends AppCompatActivity {
             public void run () {
                 try {
                     if (getSharedPreferences("user" , MODE_PRIVATE).getBoolean("save" , true)) {
-                        String user = getSharedPreferences("user" , MODE_PRIVATE).getString("username" , "");
-                        String password = getSharedPreferences("user" , MODE_PRIVATE).getString("password" , "");
+                        user = getSharedPreferences("user" , MODE_PRIVATE).getString("username" , "");
+                        password = getSharedPreferences("user" , MODE_PRIVATE).getString("password" , "");
                         FirebaseDatabase database = FirebaseDatabase.getInstance();
                         DatabaseReference myRef = database.getReference("Users/" + user);
                         flag = false;
@@ -43,7 +44,7 @@ public class SplashActivity extends AppCompatActivity {
                                 }
                                 flag = true;
                                 User value = dataSnapshot.getValue(User.class);
-                                if (value != null && value.getPassword().equals(password)) {
+                                if (value != null && value.getPassword() != null && value.getPassword().equals(password)) {
                                     User.setCurrent(value.getUsername());
                                     loggedin = true;
                                 }

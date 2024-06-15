@@ -32,7 +32,7 @@ public class JoinActivity extends AppCompatActivity {
     public void joinGame (View view) {
         code = eTCode.getText().toString();
         if (code.isEmpty()) {
-            Toast.makeText(ctx , "Please enter a game code" , Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx , "Please enter a game code." , Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -54,6 +54,7 @@ public class JoinActivity extends AppCompatActivity {
                 value.setPlayer2(User.getCurrent());
                 myRef.setValue(value);
                 Intent intent = new Intent (ctx , GameActivity.class);
+                intent.putExtra("role" , "guest");
                 intent.putExtra("code" , code);
                 startActivity(intent);
                 finish();

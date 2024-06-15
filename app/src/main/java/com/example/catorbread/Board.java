@@ -8,12 +8,12 @@ public class Board {
     ArrayList <String> cells = new ArrayList <String> ();
     int cat = 4;
     int bread = 4;
-
     int size = 9;
 
-    public Board() {}
+    public Board () {
+    }
 
-    public void setCells (ArrayList<String> cells) {
+    public void setCells (ArrayList <String> cells) {
         this.cells = cells;
     }
 
@@ -41,7 +41,6 @@ public class Board {
         this.size = size;
     }
 
-
     public ArrayList <String> getCells () {
         return cells;
     }
@@ -53,7 +52,7 @@ public class Board {
         size = 9;
         cells.clear();
 
-        for (int i = 0 ; i < size-1 ; i++) {
+        for (int i = 0 ; i < size - 1 ; i++) {
             if (cat > 0) {
                 cells.add("c");
                 cat--;
@@ -62,7 +61,7 @@ public class Board {
                 bread--;
             }
         }
-        Random rnd = new Random();
+        Random rnd = new Random ();
         int num = rnd.nextInt(2);
         if (num == 1) {
             cells.add("c");
@@ -87,28 +86,4 @@ public class Board {
         }
 
     }
-/*
-    public void boardShuffle() {
-        ImageButton[][] cells = getCells();
-
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                cells[i][j].setVisibility(View.VISIBLE);
-                if (cat > 0) {
-                    cells[i][j].setTag("c");
-                    cat--;
-                } else if (bread > 0) {
-                    cells[i][j].setTag("b");
-                }
-            }
-        }
-        Random rnd = new Random();
-        int num = rnd.nextInt(2);
-        if (num == 1) {
-            cells[2][2].setTag("c");
-        } else {
-            cells[2][2].setTag("b");
-        }
-    }
-*/
 }
