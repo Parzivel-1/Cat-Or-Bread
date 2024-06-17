@@ -48,6 +48,9 @@ public class ProfileActivity extends AppCompatActivity {
                 flag = true;
                 User value = dataSnapshot.getValue(User.class);
                 tVusername.setText(User.getCurrent());
+                if (value == null) {
+                    return;
+                }
                 tVscore.setText(value.getScore() + "");
             }
 
@@ -57,7 +60,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        ChangePictureActivity.loadProfilePicture(ctx , iVprofile , FirebaseStorage.getInstance().getReference());
+        ChangePictureActivity.loadProfilePicture(ctx , iVprofile , FirebaseStorage.getInstance().getReference() , User.getCurrent());
     }
 
     public void back (View view) {

@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Random;
 
 public class Board {
-    ArrayList <String> cells = new ArrayList <String> ();
+    ArrayList <String> cells = new ArrayList <> ();
     int cat = 4;
     int bread = 4;
     int size = 9;
@@ -46,11 +46,10 @@ public class Board {
     }
 
     public void init () {
-        cells = new ArrayList <String> ();
+        cells = new ArrayList <> ();
         cat = 4;
         bread = 4;
         size = 9;
-        cells.clear();
 
         for (int i = 0 ; i < size - 1 ; i++) {
             if (cat > 0) {
@@ -84,6 +83,5 @@ public class Board {
         if (cat == 0 || bread == 0) {
             init();
         }
-
     }
 }

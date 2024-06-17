@@ -1,22 +1,12 @@
 package com.example.catorbread;
 
 public class Game {
-    private String player1; // bread
-    private String player2; // cat
-    private String code;
-    private Board board;
-    private int time;
-    private int ScoreP1 , ScoreP2;
-
-    public Game (String player1 , String player2 , String code , Board board , int time , int ScoreP1 , int ScoreP2) {
-        this.player1 = player1;
-        this.player2 = player2;
-        this.code = code;
-        this.board = board;
-        this.time = time;
-        this.ScoreP1 = ScoreP1;
-        this.ScoreP2 = ScoreP2;
-    }
+    boolean started = false;
+    String player1; // bread
+    String player2; // cat
+    String code;
+    Board board;
+    int time , ScoreP1 , ScoreP2;
 
     public Game (String player1 , String player2 , String code , Board board , int time) {
         this.player1 = player1;
@@ -83,5 +73,13 @@ public class Game {
 
     public void setCode (String code) {
         this.code = code;
+    }
+
+    public boolean getStarted () {
+        return started;
+    }
+
+    public void setStarted (boolean started) {
+        this.started = started;
     }
 }

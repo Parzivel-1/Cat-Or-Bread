@@ -14,8 +14,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -24,13 +22,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Objects;
 
 public class ChangePictureActivity extends AppCompatActivity {
     static final int PICK_IMAGE_REQUEST = 1;
@@ -52,39 +48,39 @@ public class ChangePictureActivity extends AppCompatActivity {
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        ActivityResultLauncher <Intent> galleryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult () ,
-                new ActivityResultCallback <ActivityResult> () {
-                    @Override
-                    public void onActivityResult (ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                            imageUri = result.getData().getData();
-                            picture.setImageURI(imageUri);
-                            uploadImageToFirebase();
-                        }
+
+        //        ActivityResultLauncher <Intent> cameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult () ,
+        //                new ActivityResultCallback <ActivityResult> () {
+
+
+        ActivityResultLauncher <Intent> galleryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult () , result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        imageUri = result.getData().getData();
+                        picture.setImageURI(imageUri);
+                        uploadImageToFirebase();
                     }
                 });
 
-        ActivityResultLauncher <Intent> cameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult () ,
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult (ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                            Bitmap bitmap = (Bitmap) result.getData().getExtras().get("data");
-                            imageUri = getImageUri(bitmap);
-                            picture.setImageBitmap(bitmap);
-                            uploadImageToFirebase();
+        ActivityResultLauncher <Intent> cameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult () , result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Bitmap bitmap = (Bitmap) Objects.requireNonNull(result.getData().getExtras()).get("data");
+                        if (bitmap == null) {
+                            return;
                         }
+                        imageUri = getImageUri(bitmap);
+                        picture.setImageBitmap(bitmap);
+                        uploadImageToFirebase();
                     }
                 });
 
-        loadProfilePicture(ctx , picture , storageReference);
+        loadProfilePicture(ctx , picture , storageReference , User.getCurrent());
     }
 
     public void openGallery (View view) {
         Intent intent = new Intent ();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+        startActivityForResult(intent , PICK_IMAGE_REQUEST);
     }
 
     public void openCamera (View view) {
@@ -92,7 +88,7 @@ public class ChangePictureActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(ChangePictureActivity.this , new String [] {Manifest.permission.CAMERA} , REQUEST_CAMERA_PERMISSION);
         } else {
             Intent intent = new Intent (MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(intent, CAMERA_REQUEST);
+            startActivityForResult(intent , CAMERA_REQUEST);
         }
     }
 
@@ -126,6 +122,9 @@ public class ChangePictureActivity extends AppCompatActivity {
                 uploadImageToFirebase();
             } else if (requestCode == CAMERA_REQUEST && data != null && data.getExtras() != null) {
                 Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                if (bitmap == null) {
+                    return;
+                }
                 imageUri = getImageUri(bitmap);
                 picture.setImageURI(imageUri);
                 uploadImageToFirebase();
@@ -136,39 +135,47 @@ public class ChangePictureActivity extends AppCompatActivity {
     public void uploadImageToFirebase () {
         if (imageUri != null) {
             StorageReference fileReference = storageReference.child("Images/" + User.getCurrent() + ".jpg");
+
+            //             fileReference.putFile(imageUri)
+            //                    .addOnSuccessListener(new OnSuccessListener <UploadTask.TaskSnapshot> () {
+            //                        @Override
+            //                        public void onSuccess (UploadTask.TaskSnapshot taskSnapshot) {
+
             fileReference.putFile(imageUri)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess (UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(ChangePictureActivity.this , "Upload successful" , Toast.LENGTH_SHORT).show();
-                            loadProfilePicture(ctx , picture , storageReference);
-                            backBtn.setVisibility(View.VISIBLE);
-                        }
+                    .addOnSuccessListener(taskSnapshot -> {
+                        Toast.makeText(ChangePictureActivity.this , "Upload successful" , Toast.LENGTH_SHORT).show();
+                        loadProfilePicture(ctx , picture , storageReference , User.getCurrent());
+                        backBtn.setVisibility(View.VISIBLE);
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure (@NonNull Exception e) {
-                            Toast.makeText(ChangePictureActivity.this , "Upload failed: " + e.getMessage() , Toast.LENGTH_SHORT).show();
-                            loadProfilePicture(ctx , picture , storageReference);
-                            backBtn.setVisibility(View.VISIBLE);
-                        }
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(ChangePictureActivity.this , "Upload failed: " + e.getMessage() , Toast.LENGTH_SHORT).show();
+                        loadProfilePicture(ctx , picture , storageReference , User.getCurrent());
+                        backBtn.setVisibility(View.VISIBLE);
                     });
+
+            //                     .addOnFailureListener(new OnFailureListener () {
+            //                        @Override
+            //                        public void onFailure (@NonNull Exception e) {
+
         }
     }
 
-    public static void loadProfilePicture (Context ctx , ImageView picture , StorageReference storageReference) {
-        StorageReference profilePicRef = storageReference.child("Images/" + User.getCurrent() + ".jpg");
-        profilePicRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess (Uri uri) {
-                new DownloadImageTask (picture).execute(uri.toString());
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure (@NonNull Exception e) {
-                Toast.makeText(ctx , "Failed to load profile picture" , Toast.LENGTH_SHORT).show();
-            }
-        });
+    public static void loadProfilePicture (Context ctx , ImageView picture , StorageReference storageReference , String user) {
+        StorageReference profilePicRef = storageReference.child("Images/" + user + ".jpg");
+
+        //         profilePicRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener <Uri> () {
+        //            @Override
+        //            public void onSuccess (Uri uri) {
+
+        profilePicRef.getDownloadUrl().addOnSuccessListener(uri -> new DownloadImageTask (picture).execute(uri.toString()))
+                .addOnFailureListener(e -> Toast.makeText(ctx , "Failed to load profile picture" , Toast.LENGTH_SHORT).show());
+
+
+        //         }).addOnFailureListener(new OnFailureListener () {
+        //            @Override
+        //            public void onFailure (@NonNull Exception e) {
+
+
     }
 
     public void back (View view) {

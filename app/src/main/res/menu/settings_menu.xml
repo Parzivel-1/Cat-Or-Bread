@@ -9,12 +9,6 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/logout"
-        android:title="Log Out"
-        android:orderInCategory="200"
-        app:showAsAction="never" />
-
-    <item
         android:id="@+id/exit"
         android:title="Exit"
         android:orderInCategory="300"

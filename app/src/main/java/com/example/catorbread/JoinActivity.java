@@ -16,6 +16,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import javax.annotation.Nonnull;
+
 public class JoinActivity extends AppCompatActivity {
     EditText eTCode;
     Context ctx = this;
@@ -41,18 +43,19 @@ public class JoinActivity extends AppCompatActivity {
         flag = false;
         myRef.addListenerForSingleValueEvent(new ValueEventListener () {
             @Override
-            public void onDataChange (DataSnapshot dataSnapshot) {
+            public void onDataChange (@Nonnull DataSnapshot dataSnapshot) {
                 if (flag) {
                     return;
                 }
                 flag = true;
                 Game value = dataSnapshot.getValue(Game.class);
-                if (value == null || value.getPlayer2() != null){
-                    Toast.makeText(JoinActivity.this , "Game not found.", Toast.LENGTH_SHORT).show();
+                if (value == null) {
+                    Toast.makeText(JoinActivity.this , "Game not found." , Toast.LENGTH_SHORT).show();
+                    return;
+                } else if (value.getPlayer2() != null) {
+                    Toast.makeText(JoinActivity.this , "Game is full." , Toast.LENGTH_SHORT).show();
                     return;
                 }
-                value.setPlayer2(User.getCurrent());
-                myRef.setValue(value);
                 Intent intent = new Intent (ctx , GameActivity.class);
                 intent.putExtra("role" , "guest");
                 intent.putExtra("code" , code);
@@ -61,8 +64,8 @@ public class JoinActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled (DatabaseError error) {
-                Log.w("TAG", "Failed to read value.", error.toException());
+            public void onCancelled (@Nonnull  DatabaseError error) {
+                Log.w("TAG" , "Failed to read value." , error.toException());
             }
         });
     }

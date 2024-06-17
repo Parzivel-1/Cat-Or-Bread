@@ -3,6 +3,7 @@ package com.example.catorbread;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         int id = item.getItemId();
         if (id == R.id.settings) {
-            Intent intent = new Intent(this , SettingsActivity.class);
+            Intent intent = new Intent (ctx , SettingsActivity.class);
             startActivity(intent);
             finish();
             return true;
@@ -43,20 +44,26 @@ public class MainActivity extends AppCompatActivity {
             logOut(false);
             return true;
         } else if (id == R.id.exit) {
-            logOut(true);
+            AlertDialog.Builder builder = new AlertDialog.Builder (this);
+            builder.setMessage("Are you sure you want to exit?");
+            builder.setCancelable(true);
+            builder.setPositiveButton("Yes" , (dialog , which) -> logOut(true));
+            builder.setNegativeButton("No" , (dialog , which) -> dialog.cancel());
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
             return true;
         }
         return false;
     }
 
     public void createGame (View view) {
-        Intent intent = new Intent (this , GameActivity.class);
+        Intent intent = new Intent (ctx , GameActivity.class);
         intent.putExtra("role" , "host");
         startActivity(intent);
     }
 
     public void joinGame (View view) {
-        Intent intent = new Intent (this , JoinActivity.class);
+        Intent intent = new Intent (ctx , JoinActivity.class);
         startActivity(intent);
     }
 
@@ -73,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             finish();
             System.exit(0);
         } else {
-            Intent intent = new Intent(ctx , StartActivity.class);
+            Intent intent = new Intent (ctx , StartActivity.class);
             startActivity(intent);
             finish();
         }

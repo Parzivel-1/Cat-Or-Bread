@@ -7,18 +7,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import javax.annotation.Nonnull;
 
 public class StartActivity extends AppCompatActivity {
     Context ctx = this;
@@ -41,7 +32,7 @@ public class StartActivity extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         int id = item.getItemId();
         if (id == R.id.exit) {
-            AlertDialog.Builder builder = new AlertDialog.Builder (this);
+            AlertDialog.Builder builder = new AlertDialog.Builder (ctx);
             builder.setMessage("Are you sure you want to exit?");
             builder.setCancelable(true);
             builder.setPositiveButton("Yes" , (dialog , which) -> quit());
@@ -54,13 +45,13 @@ public class StartActivity extends AppCompatActivity {
     }
 
     public void clickLogIn (View view) {
-        Intent intent = new Intent (this , LogInActivity.class);
+        Intent intent = new Intent (ctx , LogInActivity.class);
         intent.putExtra("code" , "login");
         startActivity(intent);
     }
 
     public void clickSignUp (View view) {
-        Intent intent = new Intent (this , SignUpActivity.class);
+        Intent intent = new Intent (ctx , SignUpActivity.class);
         intent.putExtra("code" , "signup");
         startActivity(intent);
     }
