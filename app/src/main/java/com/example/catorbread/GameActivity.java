@@ -29,6 +29,8 @@ import java.util.Random;
 import javax.annotation.Nonnull;
 
 public class GameActivity extends AppCompatActivity {
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference myRef , myRef2;
     boolean guest = false , gameStart = false;
     Button btnCreateGame;
     TextView tVCode , tVP2 , tVP1 , tVP1S , tVP2S , time;
@@ -36,8 +38,6 @@ public class GameActivity extends AppCompatActivity {
     Board board;
     int timer;
     ImageButton [][] iB = new ImageButton [3][3];
-    boolean waiting = true;
-    boolean flag , flag2;
     Context ctx = this;
 
     @Override
@@ -53,17 +53,21 @@ public class GameActivity extends AppCompatActivity {
         time = findViewById(R.id.tVTime);
         tVP1.setText(User.getCurrent());
         timer = 30;
-        initBoard();
         setSupportActionBar(findViewById(R.id.Toolbar));
         String role = getIntent().getStringExtra("role");
         if (role != null && role.equals("guest")) {
             guest = true;
             btnCreateGame.setVisibility(View.INVISIBLE);
             String code = getIntent().getStringExtra("code");
-            waiting(code);
             game = new Game ();
             game.setCode(code);
-            game.setTime(timer);
+            game.update();
+            tVP2.setText(User.getCurrent());
+            tVP1.setText(game.getPlayer1());
+            myRef = database.getReference("Games/" + code);
+            myRef.child("player2").setValue(User.getCurrent());
+            myRef2 = database.getReference("Games/LEAVE/" + game.getCode());
+            waiting();
         }
     }
 
@@ -91,48 +95,25 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void leave () {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Games/");
-        myRef.child("LEAVE").child(game.getCode()).setValue(true);
-        if (tVP2.getText().toString().isEmpty()) {
-            myRef = database.getReference("Games/" + game.getCode());
+        myRef2.setValue(true);
+        if (!gameStart) {
             myRef.removeValue();
-            DatabaseReference myRef2 = database.getReference("Games/");
-            myRef2.child("LEAVE").child(game.getCode()).removeValue();
+            myRef2.removeValue();
         }
         finish();
     }
 
     public void RunningGame () {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Games/" + game.getCode());
         ValueEventListener running = new ValueEventListener () {
             @Override
             public void onDataChange (@NonNull DataSnapshot dataSnapshot) {
-                game = dataSnapshot.getValue(Game.class);
-                if (game == null || !game.getStarted()) {
+                if (game == null) {
                     return;
-                } else if (!guest && game.getTime() == 0) {
-                    myRef.child("DONE").setValue(true);
-                    endGame(game);
-                    return;
-                } else if (guest && dataSnapshot.child("DONE").getValue() == Boolean.TRUE) {
-                    myRef.removeValue();
-                    endGame(game);
-                    return;
-                } else if (!guest && timer != game.getTime()) {
-                    game.setTime(timer);
-                    updateGame();
                 }
-                game.getBoard().scan();
                 showBoard();
-                time.setText(game.getTime() + "");
                 tVP1S.setText(game.getScoreP1() + "");
                 tVP2S.setText(game.getScoreP2() + "");
-                if (game.getPlayer1() != null && game.getPlayer2() != null) {
-                    tVP1.setText(game.getPlayer1());
-                    tVP2.setText(game.getPlayer2());
-                }
+                time.setText(game.getTime() + "");
             }
 
             @Override
@@ -146,13 +127,21 @@ public class GameActivity extends AppCompatActivity {
         ValueEventListener ending = new ValueEventListener () {
             @Override
             public void onDataChange (@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("LEAVE").child(game.getCode()).getValue() == Boolean.TRUE) {
+                if (game == null) {
+                    return;
+                } else if (game.getTime() == 0) {
                     myRef.removeEventListener(running);
                     myRef.removeEventListener(this);
                     myRef.removeValue();
+                    myRef2.removeValue();
+                    endGame();
+                } else if (dataSnapshot.getValue() == Boolean.TRUE) {
+                    game.stopUpdating();
+                    myRef.removeEventListener(running);
+                    myRef.removeEventListener(this);
+                    myRef.removeValue();
+                    myRef2.removeValue();
                     Toast.makeText(ctx , "The other player left the game!" , Toast.LENGTH_SHORT).show();
-                    DatabaseReference myRef2 = database.getReference("Games/");
-                    myRef2.child("LEAVE").child(game.getCode()).removeValue();
                     finish();
                 }
             }
@@ -162,19 +151,19 @@ public class GameActivity extends AppCompatActivity {
                 Log.w("TAG" , "Failed to read value." , error.toException());
             }
         };
+
+        myRef2.addValueEventListener(ending);
     }
 
-    public void endGame (Game finalGame) {
-        if (flag2) {
-            return;
-        }
-        flag2 = true;
+    public void endGame () {
+        game.stopUpdating();
+        game.setTime(-1);
         Intent intent = new Intent (ctx , ScoreBoardActivity.class);
-        intent.putExtra("player1" , finalGame.getPlayer1());
-        intent.putExtra("player2" , finalGame.getPlayer2());
-        intent.putExtra("sP1" , finalGame.getScoreP1());
-        intent.putExtra("sP2" , finalGame.getScoreP2());
-        intent.putExtra("code" , finalGame.getCode());
+        intent.putExtra("player1" , game.getPlayer1());
+        intent.putExtra("player2" , game.getPlayer2());
+        intent.putExtra("sP1" , game.getScoreP1());
+        intent.putExtra("sP2" , game.getScoreP2());
+        intent.putExtra("code" , game.getCode());
         if (guest) {
             intent.putExtra("role" , "guest");
         } else {
@@ -188,12 +177,12 @@ public class GameActivity extends AppCompatActivity {
         if (guest) {
             return;
         }
-        game.setTime(timer);
-        new CountDownTimer (timer * 1000 , 1000) {
+
+        CountDownTimer cdt = new CountDownTimer (timer * 1000 , 1000) {
             public void onTick (long millisUntilFinished) {
                 timer--;
                 game.setTime(timer);
-                updateGame();
+                myRef.child("time").setValue(timer);
             }
 
             public void onFinish () {
@@ -201,15 +190,16 @@ public class GameActivity extends AppCompatActivity {
                     return;
                 }
                 game.setTime(0);
-                updateGame();
+                myRef.child("time").setValue(timer);
+                endGame();
+                myRef.removeValue();
             }
         }.start();
     }
 
     public void startGame () {
         gameStart = true;
-        game.setStarted(true);
-        updateGame();
+        myRef.child("started").setValue(true);
         timerFunc();
         RunningGame();
     }
@@ -232,38 +222,30 @@ public class GameActivity extends AppCompatActivity {
 
         for (int i = 0 ; i < 3 ; i++) {
             for (int j = 0 ; j < 3 ; j++) {
-
-
-
-                //                 iB[i][j].setOnClickListener(new View.OnClickListener () {
-                //                    @Override
-                //                    public void onClick (View view) {
-
-
-
-
                 iB[i][j].setOnClickListener(view -> {
-                    FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    DatabaseReference myRef = database.getReference("Games/" + game.getCode());
+                    if (game == null || game.getTime() == 0) {
+                        return;
+                    }
                     String tag = view.getTag().toString();
                     String photo = tag.split("_")[0];
                     int index = Integer.parseInt(tag.split("_")[1]);
                     if (User.getCurrent().equals(game.getPlayer1())) {
                         if (photo.equals("bread")) {
-                            game.setScoreP1(game.getScoreP1() + 1);
+                            myRef.child("scoreP1").setValue(game.getScoreP1() + 1);
                         } else if (photo.equals("cat")) {
-                            game.setScoreP1(game.getScoreP1() - 1);
+                            myRef.child("scoreP1").setValue(game.getScoreP1() - 1);
                         }
-                        game.getBoard().getCells().set(index , "e");
                     } else {
-                        if (photo.equals("bread")) {
-                            game.setScoreP2(game.getScoreP2() - 1);
-                        } else if (photo.equals("cat")) {
-                            game.setScoreP2(game.getScoreP2() + 1);
+                        if (photo.equals("cat")) {
+                            myRef.child("scoreP2").setValue(game.getScoreP2() + 1);
+                        } else if (photo.equals("bread")) {
+                            myRef.child("scoreP2").setValue(game.getScoreP2() - 1);
                         }
-                        game.getBoard().getCells().set(index , "e");
                     }
-                    updateGame();
+                    Board board = game.getBoard();
+                    board.getCells().set(index , "e");
+                    board.scan();
+                    myRef.child("board").setValue(board);
                 });
             }
         }
@@ -272,10 +254,9 @@ public class GameActivity extends AppCompatActivity {
     public void showBoard () {
         ArrayList <String> cells;
         if (game == null) {
-            cells = board.getCells();
-        } else {
-            cells = game.getBoard().getCells();
+            return;
         }
+        cells = game.getBoard().getCells();
         int counter = 0;
         for (int i = 0 ; i < 3 ; i++) {
             for (int j = 0 ; j < 3 ; j++) {
@@ -306,66 +287,27 @@ public class GameActivity extends AppCompatActivity {
         board.init();
         game = new Game (User.getCurrent() , null , (rnd.nextInt(9000) + 1000) + "" , board , timer);
         tVCode.setText(game.getCode());
-
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Games/" + game.getCode());
-        flag = false;
-        myRef.addValueEventListener(new ValueEventListener () {
-            @Override
-            public void onDataChange (@Nonnull DataSnapshot dataSnapshot) {
-                if (flag) {
-                    return;
-                }
-                flag = true;
-                Game value = dataSnapshot.getValue(Game.class);
-                if (value != null) {
-                    createGame();
-                } else {
-                    updateGame();
-                    waiting(game.getCode());
-                }
-            }
-
-            @Override
-            public void onCancelled (@Nonnull DatabaseError error) {
-                Log.w("TAG" , "Failed to read value." , error.toException());
-            }
-        });
+        myRef = database.getReference("Games/" + game.getCode());
+        myRef2 = database.getReference("Games/LEAVE/" + game.getCode());
+        initBoard();
+        myRef.setValue(game);
+        game.update();
+        waiting();
     }
 
-    public void waiting (String code) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Games/" + code);
+    public void waiting () {
         myRef.addValueEventListener(new ValueEventListener () {
             @Override
             public void onDataChange (@NonNull DataSnapshot dataSnapshot) {
-                if (!waiting || dataSnapshot.child("DONE").getValue() == Boolean.TRUE || gameStart) {
-                    return;
-                }
-                Game value = dataSnapshot.getValue(Game.class);
-                if (value == null) {
-                    return;
-                }
-                if (guest && value.getPlayer2() == null) {
-                    myRef.child("player2").setValue(User.getCurrent());
-                }
-                if (!guest && value.getPlayer2() == null) {
-                    game = value;
-                    myRef.setValue(game);
-                }
-                if (tVP1.getText().toString().isEmpty()) {
-                    tVP1.setText(value.getPlayer1());
-                }
-                if (tVP2.getText().toString().isEmpty()) {
-                    tVP2.setText(value.getPlayer2());
-                }
-                tVCode.setText(value.getCode());
-                gameStart = value.getStarted();
-                if (!guest && value.getPlayer2() != null) {
-                    waiting = false;
+                gameStart = game.getStarted();
+                if (!guest && game.getPlayer2() != null) {
+                    gameStart = true;
+                    myRef.removeEventListener(this);
+                    tVP1.setText(User.getCurrent());
+                    tVP2.setText(game.getPlayer2());
                     btnCreateGame.setText("Start Game");
                     btnCreateGame.setVisibility(View.VISIBLE);
-                } else if (!guest && value.getPlayer2() == null) {
+                } else if (!guest && game.getPlayer2() == null) {
                     btnCreateGame.setText("Waiting for player 2 to join the game");
                     btnCreateGame.setVisibility(View.VISIBLE);
                 } else if (guest && !gameStart) {
@@ -373,6 +315,7 @@ public class GameActivity extends AppCompatActivity {
                     btnCreateGame.setVisibility(View.VISIBLE);
                 } else if (guest) {
                     btnCreateGame.setVisibility(View.INVISIBLE);
+                    initBoard();
                     RunningGame();
                 }
             }
@@ -382,17 +325,6 @@ public class GameActivity extends AppCompatActivity {
                 Log.w("TAG" , "Failed to read value." , error.toException());
             }
         });
-    }
-
-    public void updateGame () {
-        if (game != null) {
-            game.getBoard().scan();
-            showBoard();
-            time.setText(game.getTime() + "");
-        }
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Games/" + game.getCode());
-        myRef.setValue(game);
     }
 
     public void btnClick (View view) {

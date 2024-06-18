@@ -30,13 +30,6 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
-
-        //         textToSpeech = new TextToSpeech (ctx , new TextToSpeech.OnInitListener () {
-        //            @Override
-        //            public void onInit (int i) {
-
-
         textToSpeech = new TextToSpeech (ctx , i -> {
             if (i == TextToSpeech.SUCCESS) {
                 textToSpeech.setLanguage(Locale.US);
@@ -91,7 +84,6 @@ public class SplashActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }
-
             }
         };
         thread.start();

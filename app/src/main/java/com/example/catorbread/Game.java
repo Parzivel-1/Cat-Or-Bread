@@ -1,6 +1,19 @@
 package com.example.catorbread;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 public class Game {
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference myRef;
+    ValueEventListener updating;
     boolean started = false;
     String player1; // bread
     String player2; // cat
@@ -14,6 +27,7 @@ public class Game {
         this.code = code;
         this.board = board;
         this.time = time;
+        myRef = database.getReference("Games/" + code);
     }
 
     public Game () {
@@ -21,6 +35,36 @@ public class Game {
 
     public Board getBoard () {
         return board;
+    }
+
+    public void update () {
+        updating = new ValueEventListener() {
+            @Override
+            public void onDataChange (@NonNull DataSnapshot dataSnapshot) {
+                Game game = dataSnapshot.getValue(Game.class);
+                if (game == null) {
+                    return;
+                }
+                setBoard(game.getBoard());
+                setTime(game.getTime());
+                setScoreP1(game.getScoreP1());
+                setScoreP2(game.getScoreP2());
+                setPlayer1(game.getPlayer1());
+                setPlayer2(game.getPlayer2());
+                setStarted(game.getStarted());
+            }
+
+            @Override
+            public void onCancelled (@NonNull DatabaseError error) {
+                Log.w("TAG" , "Failed to read value." , error.toException());
+            }
+        };
+
+        myRef.addValueEventListener(updating);
+    }
+
+    public void stopUpdating () {
+        myRef.removeEventListener(updating);
     }
 
     public void setBoard (Board board) {
@@ -73,6 +117,7 @@ public class Game {
 
     public void setCode (String code) {
         this.code = code;
+        myRef = database.getReference("Games/" + code);
     }
 
     public boolean getStarted () {

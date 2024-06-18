@@ -1,10 +1,10 @@
 package com.example.catorbread;
 
 public class User {
-    private String username;
-    private String password;
-    private int score;
-    private static String current;
+    String username;
+    String password;
+    int score;
+    static String current;
 
     public static String getCurrent () {
         return current;

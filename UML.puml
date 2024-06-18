@@ -1,0 +1,142 @@
+@startuml
+class com.example.catorbread.ChangePictureActivity {
+~ {static} int PICK_IMAGE_REQUEST
+~ {static} int CAMERA_REQUEST
+~ {static} int REQUEST_CAMERA_PERMISSION
+~ ImageView picture
+~ Button backBtn
+~ Uri imageUri
+~ FirebaseStorage firebaseStorage
+~ StorageReference storageReference
+~ Context ctx
+}
+
+class com.example.catorbread.ExampleInstrumentedTest {
+}
+class com.example.catorbread.DownloadImageTask {
+~ ImageView imageView
+}
+
+class com.example.catorbread.ProfileActivity {
+~ TextView tVscore
+~ ImageView iVprofile
+~ Context ctx
+~ boolean flag
+}
+
+class com.example.catorbread.SignUpActivity {
+~ EditText eTUsername
+~ Context ctx
+~ boolean flag
+}
+
+class com.example.catorbread.MainActivity {
+~ Context ctx
+~ TextView username
+}
+
+class com.example.catorbread.User {
+- String username
+- String password
+- int score
+- {static} String current
+}
+
+class com.example.catorbread.SettingsActivity {
+~ Context ctx
+}
+
+class com.example.catorbread.ScoreBoardActivity {
+~ TextView tVP1Name
+~ ImageView P1Image
+~ Button button
+~ TextToSpeech textToSpeech
+~ String role
+~ boolean flag
+~ Context ctx
+}
+
+class com.example.catorbread.LogInActivity {
+~ EditText eTUsername
+~ CheckBox checkbox
+~ Context ctx
+~ boolean flag
+}
+
+class com.example.catorbread.Game {
+~ FirebaseDatabase database
+~ DatabaseReference myRef
+~ ValueEventListener updating
+~ boolean started
+~ String player1
+~ String player2
+~ String code
+~ Board board
+~ int time
+}
+
+class com.example.catorbread.ChangePasswordActivity {
+~ EditText currentPassword
+~ EditText newPassword
+~ EditText confirmPassword
+~ Context ctx
+~ boolean flag
+}
+
+class com.example.catorbread.StartActivity {
+~ Context ctx
+}
+
+class com.example.catorbread.ExampleUnitTest {
+}
+class com.example.catorbread.GameActivity {
+~ FirebaseDatabase database
+~ DatabaseReference myRef
+~ boolean guest
+~ Button btnCreateGame
+~ TextView tVCode
+~ Game game
+~ Board board
+~ int timer
+~ ImageButton[][] iB
+~ Context ctx
+}
+
+class com.example.catorbread.SplashActivity {
+~ String user
+~ TextToSpeech textToSpeech
+~ Context ctx
+~ boolean flag
+~ boolean logged
+}
+
+class com.example.catorbread.JoinActivity {
+~ EditText eTCode
+~ Context ctx
+~ String code
+~ boolean flag
+}
+
+class com.example.catorbread.Board {
+~ ArrayList<String> cells
+~ int cat
+~ int bread
+~ int size
+}
+
+
+
+androidx.appcompat.app.AppCompatActivity <|-- com.example.catorbread.ChangePictureActivity
+android.os.AsyncTask <|-- com.example.catorbread.DownloadImageTask
+androidx.appcompat.app.AppCompatActivity <|-- com.example.catorbread.ProfileActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.catorbread.SignUpActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.catorbread.MainActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.catorbread.SettingsActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.catorbread.ScoreBoardActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.catorbread.LogInActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.catorbread.ChangePasswordActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.catorbread.StartActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.catorbread.GameActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.catorbread.SplashActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.catorbread.JoinActivity
+@enduml
