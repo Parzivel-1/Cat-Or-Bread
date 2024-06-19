@@ -50,10 +50,10 @@ public class JoinActivity extends AppCompatActivity {
                 flag = true;
                 Game value = dataSnapshot.getValue(Game.class);
                 if (value == null) {
-                    Toast.makeText(JoinActivity.this , "Game not found." , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ctx , "Game not found." , Toast.LENGTH_SHORT).show();
                     return;
                 } else if (value.getPlayer2() != null) {
-                    Toast.makeText(JoinActivity.this , "Game is full." , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ctx , "Game is full." , Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Intent intent = new Intent (ctx , GameActivity.class);
