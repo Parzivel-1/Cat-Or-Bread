@@ -53,7 +53,7 @@ public class ScoreBoardActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Users/" + User.getCurrent());
         flag = false;
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addValueEventListener(new ValueEventListener () {
             @Override
             public void onDataChange (@NonNull DataSnapshot dataSnapshot) {
                 if (flag) {
@@ -85,15 +85,6 @@ public class ScoreBoardActivity extends AppCompatActivity {
         } else {
             winner = "It's a tie!";
         }
-
-
-        //        textToSpeech = new TextToSpeech (ctx , new TextToSpeech.OnInitListener () {
-        //            @Override
-        //            public void onInit (int i) {
-
-
-
-
         textToSpeech = new TextToSpeech (ctx , i -> {
             if (i == TextToSpeech.SUCCESS) {
                 textToSpeech.setLanguage(Locale.US);
