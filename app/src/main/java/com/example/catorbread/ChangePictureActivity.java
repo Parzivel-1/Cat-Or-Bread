@@ -47,12 +47,6 @@ public class ChangePictureActivity extends AppCompatActivity {
         backBtn = findViewById(R.id.cancel);
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
-
-
-        //        ActivityResultLauncher <Intent> cameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult () ,
-        //                new ActivityResultCallback <ActivityResult> () {
-
-
         ActivityResultLauncher <Intent> galleryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult () , result -> {
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         imageUri = result.getData().getData();
@@ -84,7 +78,7 @@ public class ChangePictureActivity extends AppCompatActivity {
     }
 
     public void openCamera (View view) {
-        if (ContextCompat.checkSelfPermission(ChangePictureActivity.this , Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(ctx , Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(ChangePictureActivity.this , new String [] {Manifest.permission.CAMERA} , REQUEST_CAMERA_PERMISSION);
         } else {
             Intent intent = new Intent (MediaStore.ACTION_IMAGE_CAPTURE);
@@ -99,7 +93,7 @@ public class ChangePictureActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openCamera(null);
             } else {
-                Toast.makeText(this , "Camera permission is required to use the camera!" , Toast.LENGTH_SHORT).show();
+                Toast.makeText(ctx , "Camera permission is required to use the camera!" , Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -135,47 +129,24 @@ public class ChangePictureActivity extends AppCompatActivity {
     public void uploadImageToFirebase () {
         if (imageUri != null) {
             StorageReference fileReference = storageReference.child("Images/" + User.getCurrent() + ".jpg");
-
-            //             fileReference.putFile(imageUri)
-            //                    .addOnSuccessListener(new OnSuccessListener <UploadTask.TaskSnapshot> () {
-            //                        @Override
-            //                        public void onSuccess (UploadTask.TaskSnapshot taskSnapshot) {
-
             fileReference.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot -> {
-                        Toast.makeText(ChangePictureActivity.this , "Upload successful" , Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ctx , "Upload successful" , Toast.LENGTH_SHORT).show();
                         loadProfilePicture(ctx , picture , storageReference , User.getCurrent());
                         backBtn.setVisibility(View.VISIBLE);
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(ChangePictureActivity.this , "Upload failed: " + e.getMessage() , Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ctx , "Upload failed: " + e.getMessage() , Toast.LENGTH_SHORT).show();
                         loadProfilePicture(ctx , picture , storageReference , User.getCurrent());
                         backBtn.setVisibility(View.VISIBLE);
                     });
-
-            //                     .addOnFailureListener(new OnFailureListener () {
-            //                        @Override
-            //                        public void onFailure (@NonNull Exception e) {
-
         }
     }
 
     public static void loadProfilePicture (Context ctx , ImageView picture , StorageReference storageReference , String user) {
         StorageReference profilePicRef = storageReference.child("Images/" + user + ".jpg");
-
-        //         profilePicRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener <Uri> () {
-        //            @Override
-        //            public void onSuccess (Uri uri) {
-
         profilePicRef.getDownloadUrl().addOnSuccessListener(uri -> new DownloadImageTask (picture).execute(uri.toString()))
                 .addOnFailureListener(e -> Toast.makeText(ctx , "Failed to load profile picture" , Toast.LENGTH_SHORT).show());
-
-
-        //         }).addOnFailureListener(new OnFailureListener () {
-        //            @Override
-        //            public void onFailure (@NonNull Exception e) {
-
-
     }
 
     public void back (View view) {
